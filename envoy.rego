@@ -1,51 +1,42 @@
-# Hello World
-# -----------
+# Envoy ext_authz demo policy (Rego v1, requires OPA 1.0+)
+# ---------------------------------------------------------
 #
-# This example grants public HTTP access to "/", full access to "charlie", and
-# blocks everything else. This example shows how to:
+# WARNING: DEMO ONLY - NOT SAFE FOR PRODUCTION.
+# The second rule below grants full access to anyone who sends the literal
+# header `Authorization: Basic charlie`. That is a static, publicly known
+# value, not real authentication. It is kept only to preserve the original
+# behavior of this example; do not deploy it as-is.
 #
-#	* Construct a simple whitelist/deny-by-default HTTP API authorization policy.
-#	* Refer to the data sent by Envoy in External Authorization messages.
+# Decision: `data.envoy.http.public.allow` (boolean, default false).
 #
-# For more information see:
+# Input: the Envoy External Authorization CheckRequest, of which this policy
+# reads only:
 #
-#	* Rego Rules: https://www.openpolicyagent.org/docs/latest/#rules
-#	* Envoy External Authorization: https://www.envoyproxy.io/docs/envoy/latest/api-v3/service/auth/v3/external_auth.proto
+#	* input.attributes.request.http.method
+#	* input.attributes.request.http.path     (includes any query string)
+#	* input.attributes.request.http.headers.authorization
+#
+# Anything missing or not matching is denied.
+#
+# References:
+#
+#	* Rego: https://www.openpolicyagent.org/docs/latest/policy-language/
+#	* Envoy ext_authz: https://www.envoyproxy.io/docs/envoy/latest/api-v3/service/auth/v3/external_auth.proto
 
 package envoy.http.public
 
-# If neither of the rules below match, `allow` is `false`.
-default allow = false
+# Deny by default: if no rule below matches, `allow` is false.
+default allow := false
 
-# `allow` is a "rule". The simplest kind of rules in Rego are "if-then" statements
-# that assign a single value to a variable. If the value is omitted, it defaults to `true`.
-# In other words, this rule is equivalent to:
-#
-#	allow = true {
-#		input.attributes.request.http.method == "GET"
-#		input.attributes.request.http.path == "/"
-#	}
-#
-# Since statements like `X = true { ... }` are so common, Rego lets you omit the `= true` bit.
-#
-# This rule says (in English):
-#
-#	allow is true if...
-#		method is "GET", and...
-#		path is "/"
-#
-# The statements in the body of the rule are AND-ed together.
-allow {
+# Public access: GET on exactly "/". The path is compared verbatim, so a
+# request such as "/?x=1" is denied (fails closed).
+allow if {
 	input.attributes.request.http.method == "GET"
 	input.attributes.request.http.path == "/"
 }
 
-# In Rego, logical OR is expressed by defining multiple rules with the same name.
-#
-# This rule says (in English):
-#
-#	allow is true if...
-#		authorization is "Basic charlie"
-allow {
+# INSECURE DEMO RULE: full access (any method, any path) for the literal
+# credential "Basic charlie". The comparison is exact and case-sensitive.
+allow if {
 	input.attributes.request.http.headers.authorization == "Basic charlie"
 }

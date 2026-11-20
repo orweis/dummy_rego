@@ -38,9 +38,12 @@ opa eval -d envoy.rego -i input.json 'data.envoy.http.public.allow'
 
 ## Migration from 0.x (breaking, v1.0.0)
 
-The policy now uses Rego v1 syntax and no longer loads on OPA 0.x without
-`--v0-compatible`. Upgrade OPA to 1.0+, or pin the earlier revision
-(`c6c329f`). Policy behavior is unchanged. See [CHANGELOG.md](CHANGELOG.md).
+The policy now uses Rego v1 syntax (`if` keyword, `:=` default) and requires
+OPA 1.0+. On recent OPA 0.x releases it may load with `--v1-compatible`
+(or `import rego.v1`, OPA 0.59+, which this policy does not include). The
+simplest options are to upgrade OPA to 1.0+, or pin the earlier revision
+(`c6c329f`). `--v0-compatible` is the OPA 1.x flag for loading old v0-style
+policies and is not needed here. Policy behavior is unchanged. See [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 

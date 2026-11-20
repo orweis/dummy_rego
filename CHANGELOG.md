@@ -4,8 +4,8 @@
 
 ### Breaking
 - Policy migrated to Rego v1 syntax (`default allow := false`, `allow if { ... }`).
-  It now requires **OPA 1.0 or newer**; OPA 0.x (without `--v0-compatible`) will
-  reject it. Decision path and behavior are unchanged. For OPA 0.x, use the
+  It now requires **OPA 1.0 or newer**; OPA 0.x will reject it unless run with
+  `--v1-compatible` (recent 0.x releases). Decision path and behavior are unchanged. For OPA 0.x, use the
   pre-1.0 revision (commit `c6c329f`).
 
 ### Added
@@ -17,5 +17,5 @@
   full access. Behavior is intentionally preserved (not removed) to avoid a silent
   change; do not deploy this policy as-is.
 
-## 0.1.0
+## Pre-1.0 (untagged, commit `c6c329f`)
 - Initial import (Rego pre-1.0 syntax).

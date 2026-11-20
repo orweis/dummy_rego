@@ -8,14 +8,19 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   opa:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: open-policy-agent/setup-opa@v2
         with:
-          version: 1.x
+          version: 1.4.2
       - name: Format check
         run: opa fmt --list --fail .
       - name: Strict check

@@ -91,3 +91,15 @@ test_empty_credential_denied if {
 test_wrong_credential_does_not_block_public_rule if {
 	public.allow with input as req_auth("GET", "/", "Basic dave")
 }
+
+test_non_string_method_denied if {
+	not public.allow with input as {"attributes": {"request": {"http": {"method": 1, "path": "/"}}}}
+}
+
+test_null_path_denied if {
+	not public.allow with input as {"attributes": {"request": {"http": {"method": "GET", "path": null}}}}
+}
+
+test_missing_authorization_header_denied if {
+	not public.allow with input as {"attributes": {"request": {"http": {"method": "POST", "path": "/x", "headers": {"host": "a"}}}}}
+}
